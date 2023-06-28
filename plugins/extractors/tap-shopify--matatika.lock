@@ -1,0 +1,55 @@
+{
+  "plugin_type": "extractors",
+  "name": "tap-shopify",
+  "namespace": "tap_shopify",
+  "variant": "matatika",
+  "label": "Shopify",
+  "docs": "https://hub.meltano.com/extractors/tap-shopify--matatika",
+  "repo": "https://github.com/Matatika/tap-shopify",
+  "pip_url": "git+https://github.com/Matatika/tap-shopify.git",
+  "description": "Ecommerce platform",
+  "logo_url": "https://hub.meltano.com/assets/logos/extractors/shopify.png",
+  "capabilities": [
+    "about",
+    "catalog",
+    "discover",
+    "state",
+    "stream-maps"
+  ],
+  "settings_group_validation": [
+    [
+      "access_token",
+      "store"
+    ]
+  ],
+  "settings": [
+    {
+      "name": "access_token",
+      "kind": "password",
+      "label": "Access Token",
+      "description": "Your access token to authenticate with the Shopify API."
+    },
+    {
+      "name": "store",
+      "label": "Store",
+      "description": "Your Shopify store id, use the prefix of your admin url. e.g. https://[store].myshopify.com/admin."
+    },
+    {
+      "name": "admin_url",
+      "label": "Admin URL",
+      "description": "Optional - The full admin url for your Shopify store (overrides 'store' property)."
+    },
+    {
+      "name": "start_date",
+      "kind": "date_iso8601",
+      "label": "Start Date",
+      "description": "Optional - Start date to sync from."
+    },
+    {
+      "name": "is_plus_account",
+      "kind": "boolean",
+      "label": "Is Plus Account",
+      "description": "Optional - Enable Shopify plus account end points."
+    }
+  ]
+}

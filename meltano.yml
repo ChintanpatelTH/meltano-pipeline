@@ -1,0 +1,123 @@
+version: 1
+default_environment: dev
+project_id: 98511cf4-e232-44d7-8686-82bc067b1781
+environments:
+- name: dev
+- name: staging
+- name: prod
+plugins:
+  extractors:
+  - name: tap-shopify
+    namespace: tap_shopify
+    pip_url: git+https://github.com/singer-io/tap-shopify.git
+    executable: tap-shopify
+    capabilities:
+    - state
+    - catalog
+    - discover
+    - about
+    - stream-maps
+    config:
+      shop: alo-yoga
+      start_date: '2023-06-27T22:14:01-07:00'
+      api_key: $TAP_SHOPIFY_ACCESS_TOKEN
+      flattening_enabled: true
+      flattening_max_depth: 4
+    select:
+    # - orders.id
+    # - orders.name
+    # - orders.number
+    # - orders.created_at
+    # - orders.updated_at
+    - orders.*
+    # - products.id
+    # - products.product_type
+    # - products.status
+    # - products.title
+
+  - name: tap-yotpo
+    variant: singer-io
+    pip_url: tap-yotpo
+    config:
+      start_date: '2023-06-22'
+    select:
+    - reviews.*
+  - name: tap-postgres
+    variant: transferwise
+    pip_url: pipelinewise-tap-postgres
+    config:
+      host: ec2-34-192-64-24.compute-1.amazonaws.com
+      port: 5432
+      user: data_team
+      dbname: ddv0k44dochka1
+      default_replication_method: INCREMENTAL
+    select:
+    - public-utms.*
+    - public-coach_info.*
+    - public-coach_types.*
+    metadata:
+      public-utms:
+        replication-key: id
+      public-coach_info:
+        replication-key: id
+      public-coach_types:
+        replication-key: id
+  loaders:
+  - name: target-jsonl
+    variant: andyh1203
+    pip_url: target-jsonl
+    config:
+      destination_path: /Users/chintanpatel/projects/alo/my-pipeline/shopify_output
+  - name: target-s3-jsonl
+    namespace: target_s3_jsonl
+    pip_url: git+https://github.com/ome9ax/target-s3-jsonl.git
+    executable: target-s3-jsonl
+    capabilities:
+    - catalog
+    - discover
+    - state
+    config:
+      s3_bucket: is-dev-master-bucket
+      path_template: shopify/testing/{stream}/{date_time}.jsonl.gzip
+      compression: gzip
+      aws_profile: alo-is-dev
+  - name: target-redshift
+    namespace: target_redshift
+    pip_url: git+https://github.com/ChintanpatelTH/pipelinewise-target-redshift.git
+    executable: target-redshift
+    config:
+      host: $REDSHIFT_HOST
+      port: '5439'
+      dbname: dev
+      user: isdevredshiftadmin
+      password: $REDSHIFT_PASSWORD
+      default_target_schema: testing2
+      aws_profile: alo-is-dev
+      s3_key_prefix: shopify/testing/
+      s3_bucket: is-dev-master-bucket
+      primary_key_required: false
+      slices: 5
+      compression: gzip
+      data_flattening_max_level: 10
+      skip_updates: true
+      aws_redshift_copy_role_arn: arn:aws:iam::206390103201:role/is-dev-redshift-spectrum-s3-role
+  orchestrators:
+  - name: airflow
+    variant: apache
+    pip_url: apache-airflow==2.1.2 --constraint https://raw.githubusercontent.com/apache/airflow/constraints-2.1.2/constraints-${MELTANO__PYTHON_VERSION}.txt
+  files:
+  - name: files-airflow
+    variant: meltano
+    pip_url: git+https://github.com/meltano/files-airflow.git
+  utilities:
+  - name: dagster
+    variant: quantile-development
+    pip_url: dagster-ext
+jobs:
+- name: postgres-to-redshift
+  tasks:
+  - tap-postgres target-redshift
+schedules:
+- name: daily-postgres-load
+  interval: '@daily'
+  job: postgres-to-redshift

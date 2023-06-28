@@ -1,0 +1,62 @@
+{
+  "plugin_type": "extractors",
+  "name": "tap-yotpo",
+  "namespace": "tap_yotpo",
+  "variant": "singer-io",
+  "label": "Yotpo",
+  "docs": "https://hub.meltano.com/extractors/tap-yotpo--singer-io",
+  "repo": "https://github.com/singer-io/tap-yotpo",
+  "pip_url": "tap-yotpo",
+  "description": "eCommerce Marketing Platform",
+  "logo_url": "https://hub.meltano.com/assets/logos/extractors/yotpo.png",
+  "capabilities": [
+    "catalog",
+    "discover",
+    "state"
+  ],
+  "settings_group_validation": [
+    [
+      "api_secret",
+      "start_date",
+      "api_key"
+    ]
+  ],
+  "settings": [
+    {
+      "name": "api_secret",
+      "kind": "password",
+      "label": "API Secret",
+      "description": "Your API secret. Can be found in your Yotpo settings."
+    },
+    {
+      "name": "reviews_lookback_days",
+      "kind": "integer",
+      "label": "Reviews Lookback Days",
+      "description": "Parameter is used to re-fetch reviews that have been updated (or deleted) since the last time they were synced. Default, 30."
+    },
+    {
+      "name": "request_timeout",
+      "kind": "integer",
+      "label": "Request Timeout",
+      "description": "An optional paramater to set timeout for requests. Default: 300 seconds."
+    },
+    {
+      "name": "start_date",
+      "kind": "date_iso8601",
+      "label": "Start Date",
+      "description": "Determines how much historical data will be extracted. Please be aware\nthat the larger the time period and amount of data, the longer the initial extraction\ncan be expected to take."
+    },
+    {
+      "name": "email_stats_lookback_days",
+      "kind": "integer",
+      "label": "Email Stats Lookback Days",
+      "description": "Parameter is used to fetch updated email statistics (opens, clicks, etc) for emails sent by Yotpo. Default, 30."
+    },
+    {
+      "name": "api_key",
+      "kind": "password",
+      "label": "API Key",
+      "description": "Your API key. Can be found in your Yotpo settings."
+    }
+  ]
+}
